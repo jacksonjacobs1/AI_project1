@@ -3,13 +3,14 @@ import numpy as np
 import pandas as pd
 import math
 
+
 class Board:
     def __init__(self):
         self.boardstate = np.zeros((3,3), dtype=int)
         self.blank_spot = (0,0)
 
     def __setstate__(self, state, blank_spot):
-        self.boardstate = state
+        self.boardstate = np.array(state)
         self.blank_spot = blank_spot
 
     def __getstate__(self):
@@ -44,6 +45,13 @@ class Board:
             direction = direction_list[np.random.randint(len(direction_list))]
             new_state, new_blank = self.move(self.__getstate__(), self.get_blank_spot(), direction)
             self.__setstate__(new_state, new_blank)
+
+    def is_goal(self):
+        state = self.boardstate.flatten()
+        for i in range(len(state)):
+            if state[i] != i:
+                return False
+        return True
 
     @staticmethod
     def move(state, blank_spot, direction):
@@ -117,4 +125,3 @@ class Board:
                 if elem != 0:
                     output_sum += (y_dist + x_dist)
         return output_sum
-

@@ -50,6 +50,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(1, Board.h2([[1, 0, 2], [3, 4, 5], [6, 7, 8]]))
         self.assertEqual(2, Board.h2([[1, 4, 2], [3, 0, 5], [6, 7, 8]]))
 
+    def test_is_goal(self):
+        board = Board()
+        board.__setstate__([[0,1,2],[3,4,5],[6,7,8]], (0,0))
+        self.assertTrue(board.is_goal())
+        board.__setstate__([[1,0,2],[3,4,5],[6,7,8]], (0,1))
+        self.assertFalse(board.is_goal())
+
 
 
 if __name__ == '__main__':
