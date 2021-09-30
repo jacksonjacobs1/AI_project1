@@ -5,19 +5,19 @@ from EightPuzzle import BoardNode
 class MyTestCase(unittest.TestCase):
 
     def test_set_and_get_state(self):
-        b = Board()
-        b.set_node_state([[1, 1, 1], [1, 1, 1], [1, 1, 1]], blank_spot=None)
+        b = BoardNode()
+        b.set_node_state([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
         self.assertEqual([[1, 1, 1], [1, 1, 1], [1, 1, 1]], b.get_node_state())
 
     def test_move(self):
-        b = Board()
+        b = BoardNode()
         b.set_node_state([[1, 2, 3],
                           [4, 5, 6],
-                          [7, 8, 0]], blank_spot=(2, 2))
+                          [7, 8, 0]])
 
         # testing valid moves
-        new_state, new_blank = b.move(b.get_node_state(), b.find_blank(), 'left')
-        b.set_node_state(new_state, new_blank)
+        new_state = b.move(b.get_node_state(), b.find_blank(), 'left')
+        b.set_node_state(new_state)
         self.assertEqual([[1, 2, 3],
                           [4, 5, 6],
                           [7, 0, 8]], b.get_node_state())

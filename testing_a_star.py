@@ -14,7 +14,7 @@ search.a_star()
 
 #%%
 b_hard = BoardNode(b1, None, None, 0)
-b_hard.randomize_state(20)
+b_hard.randomize_state(30)
 b_hard.print_state()
-search = AStar(b_hard, 'h1')
+search = AStar(b_hard, 'h2')
 search.a_star()
