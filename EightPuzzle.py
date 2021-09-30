@@ -4,27 +4,48 @@ import pandas as pd
 import math
 
 
-class Board:
-    def __init__(self):
-        self.boardstate = np.zeros((3,3), dtype=int)
-        self.blank_spot = (0,0)
+class BoardNode:
+    # ---------INIT---------- #
+    def __init__(self, node_state, parent, action, path_cost):
+        self.node_state = np.array(node_state)
+        self.parent = parent
+        self.action = action
+        self.path_cost = path_cost
 
-    def __setstate__(self, state, blank_spot):
-        self.boardstate = np.array(state)
-        self.blank_spot = blank_spot
+    # ---------GETTERS AND SETTERS---------- #
+    def set_node_state(self, node_state):
+        """
+        :param node_state: a two-dimensional python array
+        :return: None
+        """
+        self.node_state = np.array(node_state)
 
-    def __getstate__(self):
-        return self.boardstate
+    def get_node_state(self):
+        return self.node_state
 
-    def get_blank_spot(self):
-        return self.blank_spot
+    def get_parent(self):
+        return self.parent
 
+    def get_action(self):
+        return self.action
+
+    def get_path_cost(self):
+        return self.path_cost
+
+    # ---------GENERAL METHODS-------------- #
     def print_state(self):
-        state = pd.DataFrame(self.__getstate__())
+        state = pd.DataFrame(self.get_node_state())
         print(state)
 
+    def find_blank(self):
+        state = self.get_node_state()
+        for r in range(state.shape[0]):
+            for c in range(state.shape[1]):
+                if state[r][c] == 0:
+                    return r, c
+
     def valid_directions(self):
-        blank_spot = self.get_blank_spot()
+        blank_spot = self.find_blank()
         output = []
 
         if blank_spot[1] > 0:
@@ -39,21 +60,21 @@ class Board:
         return output
 
     def randomize_state(self, n):
-        self.__setstate__([[0,1,2],[3,4,5],[6,7,8]], blank_spot=(0,0))
+        self.set_node_state([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
         for i in range(n):
             direction_list = self.valid_directions()
             direction = direction_list[np.random.randint(len(direction_list))]
-            new_state, new_blank = self.move(self.__getstate__(), self.get_blank_spot(), direction)
-            self.__setstate__(new_state, new_blank)
+            new_state = self.move(self.get_node_state(), self.find_blank(), direction)
+            self.set_node_state(new_state)
 
     def is_goal(self):
-        state = self.boardstate.flatten()
+        state = self.get_node_state().flatten()
         for i in range(len(state)):
             if state[i] != i:
                 return False
         return True
 
-    @staticmethod
+    @staticmethod  # might eventually make these static methods non-static
     def move(state, blank_spot, direction):
         """
         Shifts the blank tile (represented by a zero) in the specified direction.
@@ -66,34 +87,32 @@ class Board:
         """
         blank_row = blank_spot[0]
         blank_col = blank_spot[1]
-        state_copy = np.array(state, copy=True)
+        state_copy = np.array(state, copy=True)  # this makes a new object instead of referencing the address.
 
         if direction == 'left':
             temp = state_copy[blank_row][blank_col - 1]
             state_copy[blank_row][blank_col - 1] = 0
             state_copy[blank_row][blank_col] = temp
-            new_blank = (blank_row, blank_col - 1)
 
         elif direction == 'right':
             temp = state_copy[blank_row][blank_col + 1]
             state_copy[blank_row][blank_col + 1] = 0
             state_copy[blank_row][blank_col] = temp
-            new_blank = (blank_row, blank_col + 1)
 
         elif direction == 'up':
             temp = state_copy[blank_row - 1][blank_col]
             state_copy[blank_row - 1][blank_col] = 0
             state_copy[blank_row][blank_col] = temp
-            new_blank = (blank_row - 1, blank_col)
+
         elif direction == 'down':
             temp = state_copy[blank_row + 1][blank_col]
             state_copy[blank_row + 1][blank_col] = 0
             state_copy[blank_row][blank_col] = temp
-            new_blank = (blank_row + 1, blank_col)
+
         else:
             raise NameError("Unaccepted input. Try 'up', 'down', 'left', or 'right.")
 
-        return state_copy, new_blank
+        return state_copy
 
     @staticmethod
     def h1(state):
@@ -113,14 +132,19 @@ class Board:
 
     @staticmethod
     def h2(state):
+        """
+        Implementation of the h2 heuristic that sums up the manhattan distances of each tile from its correct place
+        :param state:
+        :return:
+        """
         output_sum = 0
 
         for row in range(len(state)):
             for col in range(len(state[0])):
                 elem = state[row][col]
 
-                y_dist = np.abs(row - int(math.floor(elem/3)))
-                x_dist = np.abs(col - elem%3)
+                y_dist = np.abs(row - int(math.floor(elem / 3)))
+                x_dist = np.abs(col - elem % 3)
 
                 if elem != 0:
                     output_sum += (y_dist + x_dist)
