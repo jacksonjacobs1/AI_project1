@@ -33,6 +33,15 @@ class BoardNode:
         return self.path_cost
 
     # ---------GENERAL METHODS-------------- #
+    def f(self, h: str):
+        """
+        f(state) = g(state) + h(state)
+        :param h: the heuristic function to use
+        :return: the path_cost plus the heuristic
+        """
+        state = self.get_node_state()
+        return self.get_path_cost() + (self.h1(state) if h == 'h1' else self.h2(state))
+
     def print_state(self):
         state = pd.DataFrame(self.get_node_state())
         print(state)
