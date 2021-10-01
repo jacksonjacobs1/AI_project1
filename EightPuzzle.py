@@ -68,13 +68,18 @@ class BoardNode:
 
         return output
 
-    def randomize_state(self, n):
-        self.set_node_state([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+    def randomize_state(self, n, reset_state=True):
+        moves = []
+        if reset_state:
+            self.set_node_state([[0, 1, 2], [3, 4, 5], [6, 7, 8]])   # local beam search does not reach this condition
         for i in range(n):
             direction_list = self.valid_directions()
             direction = direction_list[np.random.randint(len(direction_list))]
+            moves.append(direction)
             new_state = self.move(self.get_node_state(), self.find_blank(), direction)
             self.set_node_state(new_state)
+
+        return moves
 
     def is_goal(self):
         state = self.get_node_state().flatten()
