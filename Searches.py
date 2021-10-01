@@ -3,10 +3,12 @@ import numpy as np
 from queue import PriorityQueue
 from itertools import count
 
+
 class Iterator:
     def __init__(self, iterator):
         self.iterator = iterator
         self.current = None
+
     def __next__(self):
         try:
             self.current = next(self.iterator)
@@ -15,10 +17,11 @@ class Iterator:
         finally:
             return self.current
 
+
 class AStar:
     # --------INIT--------- #
     def __init__(self, game_node: BoardNode, h, max_nodes):
-        self.unique = Iterator(count)   # different from self.state_count because it also increments for some revisited nodes
+        self.unique = Iterator(count())   # different from self.state_count because it also increments for some revisited nodes
         self.maxNodes = max_nodes
 
         self.h = h
@@ -65,8 +68,6 @@ class AStar:
         print('initial board state: ')
         self.get_node().print_state()
         while self.get_frontier().not_empty:
-            if self.get_max_nodes() <= self.get_unique().current:
-                raise IndexError('max nodes reached.')
             node: BoardNode = self.get_frontier().get()[2]
             self.append_move(node.get_action())
             if node.is_goal():
@@ -85,6 +86,8 @@ class AStar:
                 if matched_child is None or (matched_child.get_path_cost() > child.get_path_cost()):
                     self.get_reached()[key] = child
                     self.get_frontier().put((child.f(self.h), next(self.unique), child))
+                    if self.get_max_nodes() <= self.get_unique().current:
+                        raise IndexError('max nodes reached.')
         print(self.get_moves())
         print(len(self.get_moves()))
         return None
@@ -107,7 +110,7 @@ def expand(node: BoardNode) -> [BoardNode]:
 class LocalBeam:
     # ----------INIT----------- #
     def __init__(self, game_node: BoardNode, k, max_nodes):
-        self.unique = Iterator(count)
+        self.unique = Iterator(count())
         self.maxNodes = max_nodes
 
         self.root = game_node
@@ -151,18 +154,18 @@ class LocalBeam:
             return root
 
         while True:     # Main iteration of local beam search.
-            if self.get_max_nodes() <= self.get_unique().current:
-                raise IndexError('max nodes reached.')
             for i in range(len(self.beams)):    # for each beam runs sequentially, not in parallel.
                 beam_children = expand(self.get_beams()[i])
                 for child in beam_children:
                     if child.is_goal():             # checks for the goal state being reached.
                         print('solved!')
                         print(f'list of moves: {self.get_moves()[i]}')
-                        print(f'number of moves: {len(self.get_moves())[i]}')
+                        print(f'number of moves: {len(self.get_moves()[i])}')
                         child.print_state()
                         return child
                     self.get_all_children().put((child.f('h2'), next(self.unique), i, child))    # place each child in the priority queue.
+                    if self.get_max_nodes() <= self.get_unique().current:
+                        raise IndexError('max nodes reached.')
             for i in range(len(self.beams)):   # for each beam
                 best_child_entry = self.get_all_children().get()   # pop best child
 
