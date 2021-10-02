@@ -1,0 +1,7 @@
+python
+numpy
+pandas
+queue
+unittest
+math
+itertools
